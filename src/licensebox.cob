@@ -122,3 +122,24 @@ procedure division using token-value product-name keys-json now-seconds result-j
         returning return-code
     goback.
 end program LB-VERIFY.
+
+identification division.
+program-id. LB-HEARTBEAT.
+data division.
+linkage section.
+01 client-handle usage pointer.
+01 module-name pic x any length.
+01 result-json pic x any length.
+01 error-code pic x any length.
+procedure division using client-handle module-name result-json error-code.
+    call static "lbc_heartbeat" using
+        by value client-handle
+        by reference module-name
+        by value function length(module-name)
+        by reference result-json
+        by value function length(result-json)
+        by reference error-code
+        by value function length(error-code)
+        returning return-code
+    goback.
+end program LB-HEARTBEAT.

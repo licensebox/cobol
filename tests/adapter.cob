@@ -13,6 +13,7 @@ working-storage section.
 01 binding-value pic x(256).
 01 options-json pic x(65536).
 01 args-json pic x(4096).
+01 module-name pic x(4096).
 01 result-json pic x(1048576).
 01 error-code pic x(64).
 01 temp-binding pic x(128).
@@ -30,6 +31,7 @@ procedure division.
     call static "read_field" using by reference binding-value by value length of binding-value
     call static "read_field" using by reference options-json by value length of options-json
     call static "read_field" using by reference args-json by value length of args-json
+    call static "read_field" using by reference module-name by value length of module-name
     move function numval(time-text) to now-seconds
     move spaces to error-code result-json
     evaluate function trim(op)
@@ -51,6 +53,15 @@ procedure division.
         call "LB-CREATE" using options-json callback-pointer client-handle error-code
         if error-code = spaces
           evaluate function trim(op)
+            when "heartbeat" continue
+            when "heartbeat-repeat"
+              call "LB-HEARTBEAT" using client-handle module-name result-json error-code
+              move "heartbeat" to op
+            when "heartbeat-after-require"
+              move "require" to op
+              move '{"module":"core"}' to args-json
+              call "LB-CALL" using client-handle op args-json result-json error-code
+              move "heartbeat" to op
             when "require" continue
             when "repeat"
               move "require" to op
@@ -65,7 +76,11 @@ procedure division.
             when other move '{}' to args-json
           end-evaluate
           if error-code = spaces
-            call "LB-CALL" using client-handle op args-json result-json error-code
+            if op = "heartbeat"
+              call "LB-HEARTBEAT" using client-handle module-name result-json error-code
+            else
+              call "LB-CALL" using client-handle op args-json result-json error-code
+            end-if
           end-if
         end-if
         call "LB-CLOSE" using client-handle

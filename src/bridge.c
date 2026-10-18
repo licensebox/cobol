@@ -7,6 +7,7 @@
 extern int lbc_owner_create(const char*,const lb_callbacks*,void**,char**);
 extern int lbc_owner_call(void*,const char*,const char*,char**,char**);
 extern int lbc_owner_close(void*);
+extern int lbc_owner_heartbeat(void*,const char*,char**,char**);
 extern void lbc_owner_release(void*);
 static char *input(const char *s,size_t n) {
  while(n && s[n-1]==' ')n--;
@@ -49,4 +50,11 @@ int lbc_verify(const char *token,size_t tn,const char *product,size_t pn,const c
  if(t&&p&&k)r=lb_verify_lease_json(t,p,k,now,&value);
  if(!r)r=copy(out,on,value);else memset(out,' ',on);
  copy(error,en,r?lb_result_code(r):"");free(t);free(p);free(k);lb_free(value);return r;
+}
+
+int lbc_heartbeat(void *h,const char *module,size_t n,char *out,size_t out_n,char *error,size_t error_n) {
+ char *m=input(module,n),*p=NULL,*e=NULL;int r=LB_INVALID_ARGUMENT;
+ if(m)r=lbc_owner_heartbeat(h,m,&p,&e);
+ if(!r)r=copy(out,out_n,p);else memset(out,' ',out_n);
+ copy(error,error_n,r?(e?e:lb_result_code(r)):"");free(m);lb_free(p);lb_free(e);return r;
 }
