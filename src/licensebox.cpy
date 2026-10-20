@@ -1,4 +1,4 @@
-       78 LB-SDK-VERSION value "0.2.0".
+       78 LB-SDK-VERSION value "0.3.0".
       *> Each field is borrowed until LB-CLOSE. A callback must not throw,
       *> STOP RUN, or reenter. Clock and binding are trusted test/platform seams.
        01 lb-callbacks.
