@@ -68,6 +68,9 @@ procedure division.
               move '{"module":"core"}' to args-json
               call "LB-CALL" using client-handle op args-json result-json error-code
             when "sign_in" move '{"timeout":3}' to args-json
+            when "enrol" continue
+            when "checkout" continue
+            when "checkin" continue
             when "request" move '{"modules":["export"],"note":"café – test"}' to args-json
             when "record"
               move '{"command":"export","success":true,"elapsed":0.125}' to args-json
